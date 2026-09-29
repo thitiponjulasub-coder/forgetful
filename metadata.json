@@ -1,0 +1,6 @@
+{
+  "name": "RemindItem - เตือนของและสิ่งสำคัญ",
+  "description": "แอปช่วยจำและเตือนความจำสิ่งของสำคัญ พร้อมระบบตรวจจับระยะห่าง Smart Tag (BLE) และแจ้งเตือนด้วยเสียงพูด (TTS)",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
