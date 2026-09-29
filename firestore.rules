@@ -1,0 +1,73 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Global Safety Net: Default Deny All
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper Primitives
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function isValidReminderItem(data, userId) {
+      return data.userId == userId
+        && data.title is string && data.title.size() > 0 && data.title.size() <= 100
+        && (!('location' in data) || (data.location is string && data.location.size() <= 200))
+        && (!('category' in data) || (data.category is string && data.category.size() <= 50))
+        && (!('remindDate' in data) || (data.remindDate is string && data.remindDate.size() <= 50))
+        && (!('remindTimeHour' in data) || (data.remindTimeHour is string && data.remindTimeHour.size() <= 4))
+        && (!('remindTimeMinute' in data) || (data.remindTimeMinute is string && data.remindTimeMinute.size() <= 4))
+        && (!('repeatInterval' in data) || (data.repeatInterval is string && data.repeatInterval.size() <= 20))
+        && (!('customRepeatMinutes' in data) || data.customRepeatMinutes is number)
+        && (!('proximityEnabled' in data) || data.proximityEnabled is bool)
+        && (!('proximityDistance' in data) || data.proximityDistance is number)
+        && (!('customProximityDistance' in data) || data.customProximityDistance is number)
+        && (!('trackingType' in data) || (data.trackingType is string && data.trackingType.size() <= 20))
+        && (!('bleDeviceId' in data) || (data.bleDeviceId is string && data.bleDeviceId.size() <= 128))
+        && (!('bleDeviceName' in data) || (data.bleDeviceName is string && data.bleDeviceName.size() <= 128))
+        && (!('bleDeviceStatus' in data) || (data.bleDeviceStatus is string && data.bleDeviceStatus.size() <= 50))
+        && (!('bleBattery' in data) || data.bleBattery is number)
+        && (!('currentDistanceMeters' in data) || data.currentDistanceMeters is number)
+        && (!('instantNotification' in data) || data.instantNotification is bool)
+        && (!('notify15MinBefore' in data) || data.notify15MinBefore is bool)
+        && (!('ttsEnabled' in data) || data.ttsEnabled is bool)
+        && data.isResolved is bool;
+    }
+
+    // User profile documents
+    match /users/{userId} {
+      allow get: if isOwner(userId) && isValidId(userId);
+      allow list: if false;
+      allow create, update: if isOwner(userId) && isValidId(userId)
+        && request.resource.data.uid == userId;
+      allow delete: if isOwner(userId) && isValidId(userId);
+
+      // Tracked Reminder Items subcollection
+      match /items/{itemId} {
+        allow get, list: if isOwner(userId) && isValidId(userId);
+        allow create: if isOwner(userId) && isValidId(userId) && isValidId(itemId)
+          && isValidReminderItem(request.resource.data, userId);
+        allow update: if isOwner(userId) && isValidId(userId) && isValidId(itemId)
+          && isValidReminderItem(request.resource.data, userId)
+          && request.resource.data.userId == resource.data.userId;
+        allow delete: if isOwner(userId) && isValidId(userId) && isValidId(itemId);
+      }
+    }
+
+    // Connection testing doc
+    match /test/{testId} {
+      allow read, write: if true;
+    }
+  }
+}

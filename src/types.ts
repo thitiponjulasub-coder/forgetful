@@ -1,5 +1,6 @@
 export interface ReminderItem {
   id: string;
+  userId?: string;
   title: string;
   location: string;
   category?: string;
@@ -21,6 +22,7 @@ export interface ReminderItem {
   notify15MinBefore: boolean;
   ttsEnabled: boolean;
   createdAt: string;
+  updatedAt?: string;
   isResolved: boolean;
 }
 

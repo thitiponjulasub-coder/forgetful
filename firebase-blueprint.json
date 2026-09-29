@@ -1,0 +1,59 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "User profile information",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "maxLength": 128 },
+        "email": { "type": "string", "maxLength": 256 },
+        "displayName": { "type": "string", "maxLength": 128 },
+        "photoURL": { "type": "string", "maxLength": 512 },
+        "createdAt": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["uid"]
+    },
+    "ReminderItem": {
+      "title": "ReminderItem",
+      "description": "Tracked item with reminders, proximity settings, and BLE tag binding",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "title": { "type": "string", "maxLength": 100 },
+        "location": { "type": "string", "maxLength": 200 },
+        "category": { "type": "string", "maxLength": 50 },
+        "remindDate": { "type": "string", "maxLength": 50 },
+        "remindTimeHour": { "type": "string", "maxLength": 4 },
+        "remindTimeMinute": { "type": "string", "maxLength": 4 },
+        "repeatInterval": { "type": "string", "maxLength": 20 },
+        "customRepeatMinutes": { "type": "number" },
+        "proximityEnabled": { "type": "boolean" },
+        "proximityDistance": { "type": "number" },
+        "customProximityDistance": { "type": "number" },
+        "trackingType": { "type": "string", "maxLength": 20 },
+        "bleDeviceId": { "type": "string", "maxLength": 128 },
+        "bleDeviceName": { "type": "string", "maxLength": 128 },
+        "bleDeviceStatus": { "type": "string", "maxLength": 50 },
+        "bleBattery": { "type": "number" },
+        "currentDistanceMeters": { "type": "number" },
+        "instantNotification": { "type": "boolean" },
+        "notify15MinBefore": { "type": "boolean" },
+        "ttsEnabled": { "type": "boolean" },
+        "isResolved": { "type": "boolean" },
+        "createdAt": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["title", "userId", "isResolved"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "User profile document storing basic user metadata"
+    },
+    "/users/{userId}/items/{itemId}": {
+      "schema": "ReminderItem",
+      "description": "Tracked inventory items and reminders belonging to a user"
+    }
+  }
+}
